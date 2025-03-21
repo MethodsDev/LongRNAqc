@@ -1,0 +1,32 @@
+version: 1.2
+workflows:
+  # - name: IsoQuantMakeDB
+  #   subclass: WDL
+  #   primaryDescriptorPath: /WDL/IsoQuant_MakeDB.wdl
+  #   authors:
+  #     - orcid: 0000-0002-2603-1660
+  # - name: IsoQuantQuantify
+  #   subclass: WDL
+  #   primaryDescriptorPath: /WDL/IsoQuant_Quantify.wdl
+  #   authors:
+  #     - orcid: 0000-0002-2603-1660
+  - name: LongRNAqc
+    subclass: WDL
+    primaryDescriptorPath: /WDL/LongRNAqc.wdl
+    authors:
+      - orcid: 0000-0002-2603-1660
+  - name: LongRNAqc_Plotting
+    subclass: WDL
+    primaryDescriptorPath: /WDL/LongRNAqc_Plotting.wdl
+    authors:
+      - orcid: 0000-0002-2603-1660
+  - name: LongRNAqc_readAccuracyAnalyzer
+    subclass: WDL
+    primaryDescriptorPath: /WDL/LongRNAqc_readAccuracyAnalyzer.wdl
+    authors:
+      - orcid: 0000-0002-2603-1660
+  # - name: Sqanti3FromBAM
+  #   subclass: WDL
+  #   primaryDescriptorPath: /WDL/sqanti3FromBAM.wdl
+  #   authors:
+  #     - orcid: 0000-0002-2603-1660
