@@ -7,7 +7,7 @@ import "IsoQuant_Quantify.wdl" as IsoQuantQuantifyWorkflow
 import "https://raw.githubusercontent.com/MethodsDev/LongReadAlignmentAssembler/refs/heads/main/WDL/LRAA.wdl" as LRAAWorkflow
 
 
-workflow LongRNAqcPlus {
+workflow LongRNAqc {
 
     meta {
         description: "Using a BAM as input, allows to run a modified version of Sqanti3, LRAA and IsoQuant. Results can then be plotted downstream with the LongRNAqcPlotting workflow."
