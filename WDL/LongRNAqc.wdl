@@ -10,7 +10,7 @@ import "https://raw.githubusercontent.com/MethodsDev/LongReadAlignmentAssembler/
 workflow LongRNAqcPlusFromBam {
 
     meta {
-        description: "Using a BAM as input, run the pacbio adapted version of rnaseqc, Sqanti3, and IsoQuant."
+        description: "Using a BAM as input, allows to run a modified version of Sqanti3, LRAA and IsoQuant. Results can then be plotted downstream with the LongRNAqcPlotting workflow."
     }
 
     input {
