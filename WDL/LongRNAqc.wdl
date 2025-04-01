@@ -7,7 +7,7 @@ import "IsoQuant_Quantify.wdl" as IsoQuantQuantifyWorkflow
 import "https://raw.githubusercontent.com/MethodsDev/LongReadAlignmentAssembler/refs/heads/main/WDL/LRAA.wdl" as LRAAWorkflow
 
 
-workflow LongRNAqcPlusFromBam {
+workflow LongRNAqcPlus {
 
     meta {
         description: "Using a BAM as input, allows to run a modified version of Sqanti3, LRAA and IsoQuant. Results can then be plotted downstream with the LongRNAqcPlotting workflow."
@@ -15,7 +15,6 @@ workflow LongRNAqcPlusFromBam {
 
     input {
         String sampleName
-        String dataType
         File inputBAM
         File inputBAMIndex
         String chromosomesList # comma seprarated
@@ -25,7 +24,8 @@ workflow LongRNAqcPlusFromBam {
         File ?cagePeak
         File ?polyAMotifs
         Float ?samplingRate
-        String BAMToGTFConversionMethod
+        String ?SqantiBAMToGTFConversionMethod = "cDNACupcake"
+        String IsoQuantDataType = "pacbio_ccs"
         String ?IsoQuantstrandedness
         String IsoQuantTranscriptQuantification = "unique_only"
         String IsoQuantGeneQuantification = "unique_splicing_consistent"
@@ -70,7 +70,7 @@ workflow LongRNAqcPlusFromBam {
                 referenceFasta = referenceFasta,
                 cagePeak = cagePeak,
                 polyAMotifs = polyAMotifs,
-                conversionMethod = BAMToGTFConversionMethod,
+                conversionMethod = SqantiBAMToGTFConversionMethod,
                 allowNonPrimary = allowNonPrimary,
                 preemptible_tries = preemptible_tries
         }
@@ -128,7 +128,7 @@ workflow LongRNAqcPlusFromBam {
                 inputBAMIndex = bam_file_index,
                 referenceFasta = referenceFasta,
                 referenceAnnotation = isoquantDB,
-                dataType = dataType,
+                dataType = IsoQuantDataType,
                 strandedness = IsoQuantstrandedness,
                 transcriptQuantification = IsoQuantTranscriptQuantification,
                 geneQuantification = IsoQuantGeneQuantification,
