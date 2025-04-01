@@ -1,6 +1,7 @@
 version 1.0
 
 import "utilities/sampleBAM.wdl" as sampleBAM
+import "LongerRNAqc.wdl" as LongerRNAqcWorkflow
 import "Sqanti3FromBAM.wdl" as sqanti3FromBAMWorkflow
 import "IsoQuant_MakeDB.wdl" as IsoQuantMakeDBWorkflow
 import "IsoQuant_Quantify.wdl" as IsoQuantQuantifyWorkflow
@@ -20,11 +21,12 @@ workflow LongRNAqc {
         String chromosomesList # comma seprarated
         File referenceFasta
         File referenceGTF
-        File ?referenceGTF_DB
+        File collapsedReferenceGTF  # rnaQC
         File ?cagePeak
         File ?polyAMotifs
         Float ?samplingRate
         String ?SqantiBAMToGTFConversionMethod = "cDNACupcake"
+        File ?IsoQuantReferenceGTF_DB  # Isoquant
         String IsoQuantDataType = "pacbio_ccs"
         String ?IsoQuantstrandedness
         String IsoQuantTranscriptQuantification = "unique_only"
@@ -36,6 +38,7 @@ workflow LongRNAqc {
         Int? LRAA_min_mapping_quality
         Boolean allowNonPrimary
         Boolean LowFi = false  # option for ONT data, used by LRAA
+        Boolean runLongerRNAqc = true
         Boolean runSqanti = true
         Boolean runLRAA = false
         Boolean runIsoQuant = false
@@ -58,6 +61,17 @@ workflow LongRNAqc {
 
     File bam_file = select_first([sampleBam.sampled_bam, inputBAM])
     File bam_file_index = select_first([sampleBam.sampled_bam_index, inputBAM])
+
+    if (runLongerRNAqc) {
+        call LongerRNAqcWorkflow.LongerRNAqc as LongerRNAqc {
+            input:
+                sampleName = sampleName,
+                inputBAM = bam_file,
+                inputBAMIndex = bam_file_index,
+                collapsedReferenceGTF = collapsedReferenceGTF,
+                maxRetries = preemptible_tries
+        }
+    }
 
     if (runSqanti) {
         call sqanti3FromBAMWorkflow.sqanti3FromBam as sqanti3FromBam {
@@ -94,23 +108,23 @@ workflow LongRNAqc {
     }
 
     if (runIsoQuant) {
-        if (defined(referenceGTF_DB)) {
-            String db_filename = basename(select_first([referenceGTF_DB]))
+        if (defined(IsoQuantReferenceGTF_DB)) {
+            String db_filename = basename(select_first([IsoQuantReferenceGTF_DB]))
 
             # If file has extension 'gtf', remove the extension such that the returned string does not match `db_filename`
             if (sub(db_filename, "gtf", "") != db_filename) {
                 call IsoQuantMakeDBWorkflow.isoquantMakeGeneDB as isoquantMakeGeneDB_fromDB {
                     input:
-                        gtfToDB = select_first([referenceGTF_DB]),
+                        gtfToDB = select_first([IsoQuantReferenceGTF_DB]),
                         isCompleteGeneDB = false,
                         preemptible_tries = preemptible_tries
                 }
             }
             #if (sub(db_filename, "gtf", "") == db_filename) {
-            #    File providedIsoquantDB = referenceGTF_DB
+            #    File providedIsoquantDB = IsoQuantReferenceGTF_DB
             #}
         }
-        if (!defined(referenceGTF_DB)) {
+        if (!defined(IsoQuantReferenceGTF_DB)) {
             call IsoQuantMakeDBWorkflow.isoquantMakeGeneDB as isoquantMakeGeneDB_fromRef {
                 input:
                     gtfToDB = referenceGTF,
@@ -119,7 +133,7 @@ workflow LongRNAqc {
             }
         }
 
-        File isoquantDB = select_first([isoquantMakeGeneDB_fromRef.geneDB, isoquantMakeGeneDB_fromDB.geneDB, referenceGTF_DB])
+        File isoquantDB = select_first([isoquantMakeGeneDB_fromRef.geneDB, isoquantMakeGeneDB_fromDB.geneDB, IsoQuantReferenceGTF_DB])
 
         call IsoQuantQuantifyWorkflow.isoquantQuantify as isoquantQuantify {
             input:
@@ -143,6 +157,13 @@ workflow LongRNAqc {
     output {
         File sampledBAM = bam_file
         File sampledBAMindex = bam_file_index
+
+        File ?rnaseqc_gene_reads_gct = LongerRNAqc.rnaseqc_gene_reads_gct
+        File ?rnaseqc_gene_fragments_gct = LongerRNAqc.rnaseqc_gene_fragments_gct
+        File ?rnaseqc_gene_tpm_gct = LongerRNAqc.rnaseqc_gene_tpm_gct
+        File ?rnaseqc_exon_reads_gct = LongerRNAqc.rnaseqc_exon_reads_gct
+        File ?rnaseqc_exon_cv_tsv = LongerRNAqc.rnaseqc_exon_cv_tsv
+        File ?rnaseqc_metrics_tsv = LongerRNAqc.rnaseqc_metrics_tsv
 
         File ?sqantiClassificationTSV = sqanti3FromBam.sqantiClassificationTSV
         File ?sqantiJunctionsTSV = sqanti3FromBam.sqantiJunctionsTSV
