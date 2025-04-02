@@ -17,11 +17,15 @@ task LongRNAqcPlottingTask {
             --classification_files '~{sep="," classificationFile}' \
             --output ~{outputPrefix} \
             --type sqanti
+
+       gzip ~{outputPrefix}.read_lengths.tsv
     }
 
     output {
-        File QC_categories_plots = "~{outputPrefix}_categories.pdf"
-        File QC_read_lengths_plots = "~{outputPrefix}_read_length_distributions.pdf"
+        File QC_categories_plots = "~{outputPrefix}.categories.pdf"
+        File QC_read_lengths_plots = "~{outputPrefix}.read_length_distributions.pdf"
+        File? QC_categories_tsv = "~{outputPrefix}.categories.tsv"
+        File QC_read_lengths_tsv = "~{outputPrefix}.read_lengths.tsv.gz"
     }
 
     runtime {
@@ -58,6 +62,9 @@ workflow LongRNAqcPlotting {
     output {
         File QC_categories_plots = LongRNAqcPlottingTask.QC_categories_plots
         File QC_read_lengths_plots = LongRNAqcPlottingTask.QC_read_lengths_plots
+        File? QC_categories_tsv = LongRNAqcPlottingTask.QC_categories_tsv
+        File QC_read_lengths_tsv = LongRNAqcPlottingTask.QC_read_lengths_tsv
+        
     }
 }
 

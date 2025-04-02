@@ -1014,13 +1014,13 @@ def main():
         with_subcategories = ["FSM", "ISM", "NIC", "NNC", "fusion"]
 
         report_sqanti_category_summary_table(
-            results, distribution_categories, args.output + "_categories.tsv"
+            results, distribution_categories, args.output + ".categories.tsv"
         )
 
     (quantile_one_percent, quantile_ninetynine_percent) = get_quantiles(results)
 
     # histograms of categories split and of subcategories within each category
-    pdf_handle = PdfPages(args.output + "_categories.pdf")
+    pdf_handle = PdfPages(args.output + ".categories.pdf")
     plot_categories_histogram(
         results, output_handle=pdf_handle, categories_to_plot=distribution_categories
     )
@@ -1030,7 +1030,7 @@ def main():
         )
     pdf_handle.close()
 
-    pdf_handle = PdfPages(args.output + "_read_length_distributions.pdf")
+    pdf_handle = PdfPages(args.output + ".read_length_distributions.pdf")
     fig, ax = plt.subplots()
     plt.close()
     for category in read_length_categories:
