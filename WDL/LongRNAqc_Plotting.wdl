@@ -6,13 +6,17 @@ task LongRNAqcPlottingTask {
         Array[File] classificationFile
         String outputPrefix
         Int preemptible
+        String docker
     }
 
     # Calculate total memory required
     Int total_file_size = ceil(size(classificationFile, "GiB") + 8)
 
     command {
-        /scripts/LongRNAqc_classification_plots.py \
+
+           set -ex
+        
+           LongRNAqc_classification_plots.py \
             --sample_names '~{sep="," sampleName}' \
             --classification_files '~{sep="," classificationFile}' \
             --output ~{outputPrefix} \
@@ -29,7 +33,7 @@ task LongRNAqcPlottingTask {
     }
 
     runtime {
-        docker: "us-central1-docker.pkg.dev/methods-dev-lab/lrtools-qc/lrtools-qc-plotting"
+        docker: docker
         bootDiskSizeGb: 30
         disks: "local-disk " + total_file_size*2 + " HDD"
         cpu: 1
@@ -49,6 +53,7 @@ workflow LongRNAqcPlotting {
         Array[File] classificationFile
         String outputPrefix
         Int preemptible = 1
+        String docker = "us-central1-docker.pkg.dev/methods-dev-lab/lrtools-sqanti3/lrtools-sqanti3-plotting"
     }
 
     call LongRNAqcPlottingTask {
@@ -56,7 +61,8 @@ workflow LongRNAqcPlotting {
             sampleName = sampleName,
             classificationFile = classificationFile,
             outputPrefix = outputPrefix,
-            preemptible = preemptible
+            preemptible = preemptible,
+            docker=docker
     }
 
     output {

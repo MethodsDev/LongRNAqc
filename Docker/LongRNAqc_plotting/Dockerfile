@@ -26,4 +26,4 @@ RUN echo "source activate QC" > ~/.bashrc
 COPY scripts/LongRNAqc_classification_plots.py .
 
 # Make script executable
-RUN chmod +x LongRNAqc_classification_plots.py.py
+RUN chmod +x LongRNAqc_classification_plots.py
