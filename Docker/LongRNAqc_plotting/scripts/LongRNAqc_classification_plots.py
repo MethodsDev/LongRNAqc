@@ -32,8 +32,10 @@ def smart_open(file_path, mode="rt", thread=8):
         return open(file_path, mode=mode)
 
 
-def parse_sqanti_classification(sqanti_files):
+def parse_sqanti_classification(sqanti_files, read_lengths_outfile):
     results = {}
+
+    read_lens_ofh = open(read_lengths_outfile, "wt")
 
     for sample_name, sqanti_file in sqanti_files.items():
         with smart_open(sqanti_file, mode="rt") as f:
@@ -119,6 +121,8 @@ def parse_sqanti_classification(sqanti_files):
                     ORF_seq,
                     ratio_TSS,
                 ) = line.split("\t")
+
+                print("\t".join([sample_name, length]), file=read_lens_ofh)
 
                 # since reused for all assignments, cast only once here
                 length = int(length)
@@ -233,6 +237,8 @@ def parse_sqanti_classification(sqanti_files):
                 "genic_intron_counts": genic_intron_counts,
                 "genic_intron_sum": genic_intron_counts.total(),
             }
+
+    read_lens_ofh.close()
 
     return results
 
@@ -979,7 +985,9 @@ def main():
     distribution_categories = None
     with_subcategories = None
     if args.type == "sqanti":
-        results = parse_sqanti_classification(sample_dict)
+        # include read length tsv file
+        read_lengths_outfile = args.output + ".read_lengths.tsv"
+        results = parse_sqanti_classification(sample_dict, read_lengths_outfile)
         read_length_categories = [
             "total",
             "FSM",
