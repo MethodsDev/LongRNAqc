@@ -1150,9 +1150,6 @@ def main():
         ]
         with_subcategories = ["FSM", "ISM", "NIC", "NNC", "fusion"]
 
-        report_sqanti_category_summary_table(
-            results, distribution_categories, args.output + ".categories.tsv"
-        )
     elif args.type == "lraa_sqanti_like":
         read_lengths_outfile = args.output + ".read_lengths.tsv"
         results = parse_lraa_sqantilike_classification(sample_dict, read_lengths_outfile)
@@ -1180,9 +1177,9 @@ def main():
         ]
         with_subcategories = ["FSM", "ISM", "antisense", "genic", "intronic", "intergenic"]
 
-        report_sqanti_category_summary_table(
-            results, distribution_categories, output_name + ".categories.tsv"
-        )   
+    report_sqanti_category_summary_table(
+        results, distribution_categories, args.output + ".categories.tsv"
+    )
 
     (quantile_one_percent, quantile_ninetynine_percent) = get_quantiles(results)
 
