@@ -5,6 +5,7 @@ task LongRNAqcPlottingTask {
         Array[String] sampleName
         Array[File] classificationFile
         String outputPrefix
+        String type
         Int preemptible
         String docker
     }
@@ -20,7 +21,7 @@ task LongRNAqcPlottingTask {
             --sample_names '~{sep="," sampleName}' \
             --classification_files '~{sep="," classificationFile}' \
             --output ~{outputPrefix} \
-            --type sqanti
+            --type ~{type}
 
        gzip ~{outputPrefix}.read_lengths.tsv
     }
@@ -52,6 +53,7 @@ workflow LongRNAqcPlotting {
         Array[String] sampleName
         Array[File] classificationFile
         String outputPrefix
+        String type
         Int preemptible = 1
         String docker = "us-central1-docker.pkg.dev/methods-dev-lab/lrtools-sqanti3/lrtools-sqanti3-plotting"
     }
@@ -61,6 +63,7 @@ workflow LongRNAqcPlotting {
             sampleName = sampleName,
             classificationFile = classificationFile,
             outputPrefix = outputPrefix,
+            type = type,
             preemptible = preemptible,
             docker=docker
     }
