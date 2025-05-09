@@ -560,7 +560,7 @@ def plot_subcategories_histogram(
             continue
         elif subcategory[-3:] == "sum":
             continue
-        elif category_to_plot in subcategory:
+        elif subcategory.startswith(category_to_plot):
             subcategories_to_plot.append(subcategory)
     n_categories = len(subcategories_to_plot)
 
