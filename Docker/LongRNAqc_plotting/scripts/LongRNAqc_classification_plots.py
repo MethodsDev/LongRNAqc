@@ -248,8 +248,8 @@ def parse_lraa_sqantilike_classification(lraa_files, read_lengths_outfile):
 
     read_lens_ofh = open(read_lengths_outfile, "wt")
 
-    for sample_name, sqanti_file in sqanti_files.items():
-        with smart_open(sqanti_file, mode="rt") as f:
+    for sample_name, lraa_file in lraa_files.items():
+        with smart_open(lraa_file, mode="rt") as f:
             FSM_counts = Counter()
             FSM_multi_exon_counts = Counter()
             FSM_single_exon_counts = Counter()
