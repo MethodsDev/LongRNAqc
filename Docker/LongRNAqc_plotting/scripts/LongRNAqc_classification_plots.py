@@ -1153,8 +1153,8 @@ def main():
         report_sqanti_category_summary_table(
             results, distribution_categories, args.output + ".categories.tsv"
         )
-    elif args_type == "lraa_sqanti_like":
-        read_lengths_outfile = output_name + ".read_lengths.tsv"
+    elif args.type == "lraa_sqanti_like":
+        read_lengths_outfile = args.output + ".read_lengths.tsv"
         results = parse_lraa_sqantilike_classification(sample_dict, read_lengths_outfile)
 
         read_length_categories = [
