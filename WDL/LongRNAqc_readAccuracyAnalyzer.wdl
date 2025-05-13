@@ -5,13 +5,14 @@ task PlotMatchRatesAndIndelRates {
         Array[File] bamFiles
         Array[File] bamIndexes
         Array[String] sampleNames
+        String outputPrefix
         Int ?maxRetries = 3
     }
 
    Int total_file_size = ceil(size(bamFiles, "GiB"))
 
     command <<<
-        violin_plot_indel_rates.py "~{sep=',' sampleNames}" "~{sep=',' bamFiles}"
+        violin_plot_indel_rates.py ~{outputPrefix} "~{sep=',' sampleNames}" "~{sep=',' bamFiles}"
     >>>
 
     runtime {
@@ -23,8 +24,8 @@ task PlotMatchRatesAndIndelRates {
     }
 
     output {
-        File violinPlots = "violin_plots.png"
-        File phredViolinPlots = "phred_violin_plots.png"
+        File violinPlots = "~{outputPrefix}_violin_plots.png"
+        File phredViolinPlots = "~{outputPrefix}_phred_violin_plots.png"
     }
 }
 
@@ -37,6 +38,7 @@ workflow LongRNAqc_readAccuracyAnalyzer {
         Array[File] bamFiles
         Array[File] bamIndexes
         Array[String] sampleNames
+        String outputPrefix
         Int ?maxRetries = 3
     }
 
@@ -45,6 +47,7 @@ workflow LongRNAqc_readAccuracyAnalyzer {
             bamFiles = bamFiles,
             bamIndexes = bamIndexes,
             sampleNames = sampleNames,
+            outputPrefix = outputPrefix,
             maxRetries = maxRetries
     }
 
