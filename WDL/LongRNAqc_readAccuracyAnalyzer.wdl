@@ -16,7 +16,7 @@ task PlotMatchRatesAndIndelRates {
     >>>
 
     runtime {
-        docker: "us-central1-docker.pkg.dev/methods-dev-lab/lrtools-qc/longrnaqc_readaccuracyanalyzer"
+        docker: "us-central1-docker.pkg.dev/methods-dev-lab/lrtools-qc/longrnaqc_readaccuracyanalyzer:devel"
         disks: "local-disk " + ceil(total_file_size*1.1 + 5) + " SSD"
         memory: "4 GB"
         cpu: 1
