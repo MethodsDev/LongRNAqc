@@ -7,7 +7,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from collections import defaultdict
+from collections import Counter
 import math
 from dataclasses import dataclass
 
@@ -502,7 +502,7 @@ def build_phred_dict(rate_dict, cap=40.0):
     Given a dictionary of {rate -> count}, return a dictionary {phred -> count},
     capping at `cap` for the case rate=0 and for very small rates
     """
-    phred_dict = defaultdict(int)
+    phred_dict = Counter()
     for rate_val, cnt in rate_dict.items():
         if rate_val > 0:
             phred_score = -10.0 * math.log10(rate_val)
@@ -523,12 +523,15 @@ def calculate_stats(bam_file_dict):
 
     for run_name, bam_file in bam_file_dict.items():
 
-        match_proportion = defaultdict(int)
-        mismatch_proportion = defaultdict(int)
-        softclip_proportion = defaultdict(int)
-        insertion_rate = defaultdict(int)
-        deletion_rate = defaultdict(int)
-        indel_rate = defaultdict(int)
+        match_proportion = Counter()
+        mismatch_proportion = Counter()
+        softclip_proportion = Counter()
+        insertion_rate = Counter()
+        insertion_proportion = Counter()
+        deletion_rate = Counter()
+        deletion_proportion = Counter()
+        indel_rate = Counter()
+        indel_proportion = Counter()
 
         for stats in get_read_stats_from_bam(bam_file):
             match_proportion[round((stats.match_length / stats.cigar_length if stats.cigar_length > 0 else 0), 3)] += 1
