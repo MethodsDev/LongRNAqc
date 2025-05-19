@@ -367,7 +367,10 @@ def plot_proportions_violin_plots(results, output_path_prefix):
         "softclip_proportion",
         "insertion_rate",
         "deletion_rate",
-        "indel_rate"
+        "indel_rate",
+        "insertion_proportion",
+        "deletion_proportion",
+        "indel_proportion"
     ]
     
     titles = [
@@ -376,11 +379,15 @@ def plot_proportions_violin_plots(results, output_path_prefix):
         "Softclip Proportion",
         "Insertion Rate",
         "Deletion Rate",
-        "Indel Rate"
+        "Indel Rate",
+        "Insertion Proportion",
+        "Deletion Proportion",
+        "Indel Proportion"
     ]
     
-    fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(18, 22))
-    axs = axs.flatten()  # make it easier to iterate through the 6 axes in a single list
+    # fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(18, 22))
+    fig, axs = plt.subplots(nrows=3, ncols=3, figsize=(18, 33))
+    axs = axs.flatten()  # make it easier to iterate through the 9 axes in a single list
     
     for ax, stat_name, title in zip(axs, stats_order, titles):
         # plot each run_name (BAM) as one violin along x = i
@@ -428,9 +435,27 @@ def plot_proportions_violin_plots(results, output_path_prefix):
 
 
 def plot_phred_violin_plots(results, output_path_prefix):
-    fig, axs = plt.subplots(1, 3, figsize=(18, 6)) 
-    phred_metrics = ["insertion_phred", "deletion_phred", "indel_phred"]
-    titles = ["Insertion Phred Score", "Deletion Phred Score", "Indel Phred Score"]
+    # fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+    fig, axs = plt.subplots(2, 3, figsize=(18, 12))
+    axs = axs.flatten()  # make it easier to iterate through the 6 axes in a single list
+    
+    phred_metrics = [
+        "insertion_rate_phred",
+        "deletion_rate_phred",
+        "indel_rate_phred",
+        "insertion_proportion_phred",
+        "deletion_proportion_phred",
+        "indel_proportion_phred"
+    ]
+
+    titles = [
+        "Insertion Rate Phred Score",
+        "Deletion Rate Phred Score",
+        "Indel Rate Phred Score",
+        "Insertion Proportion Phred Score",
+        "Deletion Proportion Phred Score",
+        "Indel Proportion Phred Score"
+    ]
 
     for ax, metric, title in zip(axs, phred_metrics, titles):
         for i, (run_name, stats_dict) in enumerate(results.items()):
@@ -510,23 +535,34 @@ def calculate_stats(bam_file_dict):
             mismatch_proportion[round((stats.mismatch_length / stats.cigar_length if stats.cigar_length > 0 else 0), 3)] += 1
             softclip_proportion[round((stats.soft_clip / (stats.cigar_length + stats.soft_clip) if stats.cigar_length > 0 else 0), 3)] += 1
             insertion_rate[round((stats.insertion_count / stats.cigar_length if stats.cigar_length > 0 else 0), 3)] += 1
+            insertion_proportion[round((stats.insertion_length / stats.cigar_length if stats.cigar_length > 0 else 0), 3)] += 1
             deletion_rate[round((stats.deletion_count / stats.cigar_length if stats.cigar_length > 0 else 0), 3)] += 1
+            deletion_proportion[round((stats.deletion_length / stats.cigar_length if stats.cigar_length > 0 else 0), 3)] += 1
             indel_rate[round(((stats.insertion_count + stats.deletion_count) / stats.cigar_length if stats.cigar_length > 0 else 0), 3)] += 1
+            indel_proportion[round(((stats.insertion_length + stats.deletion_length) / stats.cigar_length if stats.cigar_length > 0 else 0), 3)] += 1
 
-        insertion_phred = build_phred_dict(insertion_rate, cap=40.0)
-        deletion_phred = build_phred_dict(deletion_rate, cap=40.0)
-        indel_phred = build_phred_dict(indel_rate, cap=40.0)
+        insertion_rate_phred = build_phred_dict(insertion_rate, cap=40.0)
+        insertion_proportion_phred = build_phred_dict(insertion_proportion, cap=40.0)
+        deletion_rate_phred = build_phred_dict(deletion_rate, cap=40.0)
+        deletion_proportion_phred = build_phred_dict(deletion_proportion, cap=40.0)
+        indel_rate_phred = build_phred_dict(indel_rate, cap=40.0)
+        indel_proportion_phred = build_phred_dict(indel_proportion, cap=40.0)
 
         results[run_name] = {
             "match_proportion": match_proportion,
             "mismatch_proportion": mismatch_proportion,
             "softclip_proportion": softclip_proportion,
             "insertion_rate": insertion_rate,
+            "insertion_proportion": insertion_proportion,
             "deletion_rate": deletion_rate,
+            "deletion_proportion": deletion_proportion,
             "indel_rate": indel_rate,
-            "insertion_phred": insertion_phred,
-            "deletion_phred": deletion_phred,
-            "indel_phred": indel_phred,
+            "insertion_rate_phred": insertion_rate_phred,
+            "insertion_proportion_phred": insertion_proportion_phred,
+            "deletion_rate_phred": deletion_rate_phred,
+            "deletion_proportion_phred": deletion_proportion_phred,
+            "indel_rate_phred": indel_rate_phred,
+            "indel_proportion_phred": indel_proportion_phred,
         }
 
     return results
