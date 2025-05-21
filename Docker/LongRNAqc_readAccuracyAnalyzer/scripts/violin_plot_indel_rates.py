@@ -560,6 +560,7 @@ def calculate_stats(bam_file_dict):
             "deletion_rate": deletion_rate,
             "deletion_proportion": deletion_proportion,
             "indel_rate": indel_rate,
+            "indel_proportion": indel_proportion,
             "insertion_rate_phred": insertion_rate_phred,
             "insertion_proportion_phred": insertion_proportion_phred,
             "deletion_rate_phred": deletion_rate_phred,
