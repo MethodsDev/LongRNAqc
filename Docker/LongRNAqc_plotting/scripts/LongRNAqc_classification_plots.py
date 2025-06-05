@@ -588,7 +588,7 @@ def plot_subcategories_histogram(
         # col_colors.append(custom_palette[sample_name])
         for j, subcategory in enumerate(subcategories_to_plot):
             col_height[(n_samples * j) + i] = (
-                counts_dict[subcategory].total()
+                counts_dict[subcategory + "_counts"].total()
                 / counts_dict[category_name + "_sum"]
                 * 100
             )
