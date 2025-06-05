@@ -250,26 +250,27 @@ def parse_lraa_sqantilike_classification(lraa_files, read_lengths_outfile):
 
     for sample_name, lraa_file in lraa_files.items():
         with smart_open(lraa_file, mode="rt") as f:
-            FSM_counts = Counter()
-            FSM_multi_exon_counts = Counter()
-            FSM_single_exon_counts = Counter()
-            ISM_counts = Counter()
-            ISM_multi_exon_counts = Counter()
-            ISM_single_exon_counts = Counter()
-            NIC_counts = Counter()
-            NNIC_counts = Counter()
-            antisense_counts = Counter()
-            antisense_multi_exon_counts = Counter()
-            antisense_single_exon_counts = Counter()
-            intergenic_counts = Counter()
-            intergenic_multi_exon_counts = Counter()
-            intergenic_single_exon_counts = Counter()
-            intronic_counts = Counter()
-            intronic_multi_exon_counts = Counter()
-            intronic_single_exon_counts = Counter()
-            genic_counts = Counter()
-            genic_multi_exon_counts = Counter()
-            genic_single_exon_counts = Counter()
+            # FL_counts = Counter()                       # FSM + FM
+            FSM_counts = Counter()                      # FSM
+            FM_counts = Counter()                       # FM
+            # IL_counts = Counter()                       # ISM + IM
+            ISM_counts = Counter()                      # ISM
+            IM_counts = Counter()                       # IM
+            NIC_counts = Counter()                      # NIC
+            NNIC_counts = Counter()                     # NNIC
+            exonic_counts = Counter()                   # se_exonic
+            genic_counts = Counter()                    # genic + se_genic
+            genic_multi_exon_counts = Counter()         # genic
+            genic_single_exon_counts = Counter()        # se_genic
+            intronic_counts = Counter()                 # intronic + se_intronic
+            intronic_multi_exon_counts = Counter()      # intronic
+            intronic_single_exon_counts = Counter()     # se_intronic
+            antisense_counts = Counter()                # antisense + se_antisense
+            antisense_multi_exon_counts = Counter()     # antisense
+            antisense_single_exon_counts = Counter()    # se_antisense
+            intergenic_counts = Counter()               # intergenic + se_intergenic
+            intergenic_multi_exon_counts = Counter()    # intergenic
+            intergenic_single_exon_counts = Counter()   # se_intergenic
 
             f.readline()  # skip header
 
@@ -289,48 +290,46 @@ def parse_lraa_sqantilike_classification(lraa_files, read_lengths_outfile):
                 length = int(feature_length)
 
                 if sqanti_cat == "FSM":
-                    FSM_multi_exon_counts[length] += 1
-                elif sqanti_cat == "se_FSM":
-                    FSM_single_exon_counts[length] += 1
+                    FSM_counts[length] += 1
+                elif sqanti_cat == "se_FM":
+                    FM_counts[length] += 1
                 elif sqanti_cat == "ISM":
-                    ISM_multi_exon_counts[length] += 1
-                elif sqanti_cat == "se_ISM":
-                    ISM_single_exon_counts[length] += 1
+                    ISM_counts[length] += 1
+                elif sqanti_cat == "se_IM":
+                    IM_counts[length] += 1
                 elif sqanti_cat == "NIC":
                     NIC_counts[length] += 1
                 elif sqanti_cat == "NNIC":
                     NNIC_counts[length] += 1
-                elif sqanti_cat == "antisense":
-                    antisense_multi_exon_counts[length] += 1
-                elif sqanti_cat == "se_antisense":
-                    antisense_single_exon_counts[length] += 1
-                elif sqanti_cat == "antisense":
-                    antisense_multi_exon_counts[length] += 1
-                elif sqanti_cat == "se_antisense":
-                    antisense_single_exon_counts[length] += 1
+                elif sqanti_cat == "se_exonic":
+                    exonic_counts[length] += 1
                 elif sqanti_cat == "genic":
                     genic_multi_exon_counts[length] += 1
                 elif sqanti_cat == "se_genic":
                     genic_single_exon_counts[length] += 1
-                elif sqanti_cat == "intergenic":
-                    intergenic_multi_exon_counts[length] += 1
-                elif sqanti_cat == "se_intergenic":
-                    intergenic_single_exon_counts[length] += 1
                 elif sqanti_cat == "intronic":
                     intronic_multi_exon_counts[length] += 1
                 elif sqanti_cat == "se_intronic":
                     intronic_single_exon_counts[length] += 1
+                elif sqanti_cat == "antisense":
+                    antisense_multi_exon_counts[length] += 1
+                elif sqanti_cat == "se_antisense":
+                    antisense_single_exon_counts[length] += 1
+                elif sqanti_cat == "intergenic":
+                    intergenic_multi_exon_counts[length] += 1
+                elif sqanti_cat == "se_intergenic":
+                    intergenic_single_exon_counts[length] += 1
 
-            FSM_counts = FSM_multi_exon_counts + FSM_single_exon_counts
-            ISM_counts = ISM_multi_exon_counts + ISM_single_exon_counts
+            FL_counts = FSM_counts + FM_counts
+            IL_counts = ISM_counts + IM_counts + exonic_counts
             antisense_counts = antisense_multi_exon_counts + antisense_single_exon_counts
             intergenic_counts = intergenic_multi_exon_counts + intergenic_single_exon_counts
             intronic_counts = intronic_multi_exon_counts + intronic_single_exon_counts
             genic_counts = genic_multi_exon_counts + genic_single_exon_counts
 
             total_counts = (
-                FSM_counts
-                + ISM_counts
+                FL_counts
+                + IL_counts
                 + NIC_counts
                 + NNIC_counts
                 + antisense_counts
@@ -342,14 +341,20 @@ def parse_lraa_sqantilike_classification(lraa_files, read_lengths_outfile):
             results[sample_name] = {
                 "total_counts": total_counts,
                 "total_sum": total_counts.total(),
+                "FL_counts": FL_counts,
+                "FL_sum": FL_counts.total(),
                 "FSM_counts": FSM_counts,
                 "FSM_sum": FSM_counts.total(),
-                "FSM_multi_exon_counts": FSM_multi_exon_counts,
-                "FSM_single_exon_counts": FSM_single_exon_counts,
+                "FM_counts": FM_counts,
+                "FM_sum": FM_counts.total(),
+                "IL_counts": IL_counts,
+                "IL_sum": IL_counts.total(),
                 "ISM_counts": ISM_counts,
                 "ISM_sum": ISM_counts.total(),
-                "ISM_multi_exon_counts": ISM_multi_exon_counts,
-                "ISM_single_exon_counts": ISM_single_exon_counts,
+                "IM_counts": IM_counts,
+                "IM_sum": IM_counts.total(),
+                "exonic_counts": exonic_counts,
+                "exonic_sum": exonic_counts.total(),
                 "NIC_counts": NIC_counts,
                 "NIC_sum": NIC_counts.total(),
                 "NNIC_counts": NNIC_counts,
@@ -357,21 +362,27 @@ def parse_lraa_sqantilike_classification(lraa_files, read_lengths_outfile):
                 "antisense_counts": antisense_counts,
                 "antisense_sum": antisense_counts.total(),
                 "antisense_multi_exon_counts": antisense_multi_exon_counts,
+                "antisense_multi_exon_sum": antisense_multi_exon_counts.total(),
                 "antisense_single_exon_counts": antisense_single_exon_counts,
+                "antisense_single_exon_sum": antisense_single_exon_counts.total(),
                 "intergenic_counts": intergenic_counts,
                 "intergenic_sum": intergenic_counts.total(),
                 "intergenic_multi_exon_counts": intergenic_multi_exon_counts,
+                "intergenic_multi_exon_sum": intergenic_multi_exon_counts.total(),
                 "intergenic_single_exon_counts": intergenic_single_exon_counts,
-                "intergenic_counts": intergenic_counts,
-                "intergenic_sum": intergenic_counts.total(),
+                "intergenic_single_exon_sum": intergenic_single_exon_counts.total(),
                 "intronic_counts": intronic_counts,
                 "intronic_sum": intronic_counts.total(),
                 "intronic_multi_exon_counts": intronic_multi_exon_counts,
+                "intronic_multi_exon_sum": intronic_multi_exon_counts.total(),
                 "intronic_single_exon_counts": intronic_single_exon_counts,
+                "intronic_single_exon_sum": intronic_single_exon_counts.total(),
                 "genic_counts": genic_counts,
                 "genic_sum": genic_counts.total(),
                 "genic_multi_exon_counts": genic_multi_exon_counts,
+                "genic_multi_exon_sum": genic_multi_exon_counts.total(),
                 "genic_single_exon_counts": genic_single_exon_counts,
+                "genic_single_exon_sum": genic_single_exon_counts.total(),
             }
 
     read_lens_ofh.close()
@@ -546,22 +557,23 @@ def plot_categories_histogram(
 
 def plot_subcategories_histogram(
     results,
-    category_to_plot,
+    category_name,
+    subcategories_to_plot,
     output_handle=None,
     subcategories_spacing=2,
     col_width=1,
 ):
     n_samples = len(results)
     subcategories_group_spacing = (n_samples * col_width) + subcategories_spacing
-    subcategories_to_plot = []
-    first_sample = next(iter(results))
-    for subcategory in results[first_sample].keys():
-        if subcategory == category_to_plot + "_counts":
-            continue
-        elif subcategory[-3:] == "sum":
-            continue
-        elif subcategory.startswith(category_to_plot):
-            subcategories_to_plot.append(subcategory)
+    #subcategories_to_plot = []
+    #first_sample = next(iter(results))
+    #for subcategory in results[first_sample].keys():
+    #    if subcategory == category_to_plot + "_counts":
+    #        continue
+    #    elif subcategory[-3:] == "sum":
+    #        continue
+    #    elif subcategory.startswith(category_to_plot):
+    #        subcategories_to_plot.append(subcategory)
     n_categories = len(subcategories_to_plot)
 
     col_height = np.empty(n_categories * n_samples, dtype=np.float32)
@@ -574,10 +586,10 @@ def plot_subcategories_histogram(
     for i, (sample_name, counts_dict) in enumerate(results.items()):
         col_labels.append(sample_name)
         # col_colors.append(custom_palette[sample_name])
-        for j, category in enumerate(subcategories_to_plot):
+        for j, subcategory in enumerate(subcategories_to_plot):
             col_height[(n_samples * j) + i] = (
-                counts_dict[category].total()
-                / counts_dict[category_to_plot + "_sum"]
+                counts_dict[subcategory].total()
+                / counts_dict[category_name + "_sum"]
                 * 100
             )
             col_placement[(n_samples * j) + i] = (i * col_width) + (
@@ -611,7 +623,7 @@ def plot_subcategories_histogram(
     plt.tick_params(axis="y", which="both", color="black", left=True)
     ax.set_xticklabels(subcategories_to_plot, fontsize=16)
     ax.set_title(
-        "Reads Distribution Across " + category_to_plot + " Subcategories and Samples",
+        "Reads Distribution Across " + category_name + " Subcategories and Samples",
         fontsize=40,
     )
     ax.legend(
@@ -1058,7 +1070,7 @@ def report_sqanti_category_summary_table(
 
         total_sum = sample_dict["total_sum"]
 
-        # restrict to subset of cateogries of interest.
+        # restrict to subset of categories of interest.
         sample_dict = {
             k: sample_dict[k + "_sum"] / total_sum * 100
             for k in distribution_categories
@@ -1138,6 +1150,20 @@ def main():
             "intergenic",
         ]
         distribution_categories = [
+            [
+                "FSM",
+                "ISM",
+                "NIC",
+                "NNC",
+                "antisense",
+                "fusion",
+                "genic_genomic",
+                "genic_intron",
+                "intergenic",
+            ]
+        ]
+
+        tsv_categories = [
             "FSM",
             "ISM",
             "NIC",
@@ -1148,7 +1174,15 @@ def main():
             "genic_intron",
             "intergenic",
         ]
-        with_subcategories = ["FSM", "ISM", "NIC", "NNC", "fusion"]
+
+        # with_subcategories = ["FSM", "ISM", "NIC", "NNC", "fusion"]
+        with_subcategories = {
+            "FSM": ["FSM_ref", "FSM_monoexon", "FSM_alt3", "FSM_alt5", "FSM_alt35"],
+            "ISM": ["ISM", "ISM_3frag", "ISM_5frag", "ISM_monoexon", "ISM_intfrag", "ISM_intron_retention"],
+            "NIC": ["NIC_annotated_junctions", "NIC_annotated_splice_sites", "NIC_intron_retention", "NIC_monoexon", "NIC_monoexon_intron_retention"],
+            "NNC": ["NNC_intron_retention", "NNC_partial_unk_splice_site"],
+            "fusion": ["fusion_intron_retention", "fusion_multiexon"],
+        }
 
     elif args.type == "lraa_sqanti_like":
         read_lengths_outfile = args.output + ".read_lengths.tsv"
@@ -1157,40 +1191,97 @@ def main():
         read_length_categories = [
             "total",
             "FSM",
+            "FM",
+            "FL",
             "ISM",
+            "IM",
+            "exonic",
+            "IL",
             "NIC",
             "NNIC",
-            "antisense",
-            "genic",
-            "intronic",
-            "intergenic",
+            "antisense_multi_exon",
+            "antisense_single_exon",
+            "genic_multi_exon",
+            "genic_single_exon",
+            "intronic_multi_exon",
+            "intronic_single_exon",
+            "intergenic_multi_exon",
+            "intergenic_single_exon",
         ]
         distribution_categories = [
+            [
+                "FL",
+                "IL",
+                "NIC",
+                "NNIC",
+                "antisense",
+                "intergenic",
+                "intronic",
+                "genic",
+            ],
+            [
+                "FSM",
+                "FM",
+                "ISM",
+                "IM",
+                "exonic",
+                "NIC",
+                "NNIC",
+                "antisense_multi_exon",
+                "antisense_single_exon",
+                "intergenic_multi_exon",
+                "intergenic_single_exon",
+                "intronic_multi_exon",
+                "intronic_single_exon",
+                "genic_multi_exon",
+                "genic_single_exon",
+            ],
+        ]
+
+        tsv_categories = [
             "FSM",
+            "FM",
             "ISM",
+            "IM",
+            "exonic",
             "NIC",
             "NNIC",
-            "antisense",
-            "genic",
-            "intronic",
-            "intergenic",
+            "antisense_multi_exon",
+            "antisense_single_exon",
+            "intergenic_multi_exon",
+            "intergenic_single_exon",
+            "intronic_multi_exon",
+            "intronic_single_exon",
+            "genic_multi_exon",
+            "genic_single_exon",
         ]
-        with_subcategories = ["FSM", "ISM", "antisense", "genic", "intronic", "intergenic"]
+
+        # with_subcategories = ["FSM", "ISM", "antisense", "genic", "intronic", "intergenic"]
+        with_subcategories = {
+            "FL": ["FSM", "FM"],
+            "IL": ["ISM", "IM", "exonic"],
+            "antisense": ["antisense_multi_exon", "antisense_single_exon"],
+            "intergenic": ["intergenic_multi_exon", "intergenic_single_exon"],
+            "intronic": ["intronic_multi_exon", "intronic_single_exon"],
+            "genic": ["genic_multi_exon", "genic_single_exon"],
+        }
+
 
     report_sqanti_category_summary_table(
-        results, distribution_categories, args.output + ".categories.tsv"
+        results, tsv_categories, args.output + ".categories.tsv"
     )
 
     (quantile_one_percent, quantile_ninetynine_percent) = get_quantiles(results)
 
     # histograms of categories split and of subcategories within each category
     pdf_handle = PdfPages(args.output + ".categories.pdf")
-    plot_categories_histogram(
-        results, output_handle=pdf_handle, categories_to_plot=distribution_categories
-    )
-    for category in with_subcategories:
+    for set_of_categories in distribution_categories:
+        plot_categories_histogram(
+            results, output_handle=pdf_handle, categories_to_plot=set_of_categories
+        )
+    for (category_name, subcategories_list) in with_subcategories.items():
         plot_subcategories_histogram(
-            results, output_handle=pdf_handle, category_to_plot=category
+            results, output_handle=pdf_handle, category_name=category_name, subcategories_to_plot=subcategories_list
         )
     pdf_handle.close()
 
